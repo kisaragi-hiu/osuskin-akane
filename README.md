@@ -1,10 +1,12 @@
-# Retome
+# Akane
 
-A skin focused on glow and shadow effects.
+New skin.
 
-## Forum posts
+Name is maybe temporary.
 
-https://osu.ppy.sh/community/forums/topics/630525?start=6195149
+Starting off the base of Retome because this is easier.
+
+Information below may be outdated.
 
 ## Building
 
