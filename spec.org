@@ -1,0 +1,13 @@
+* Akane
+
+** Colors (maybe temporary)
+
+#+begin_src css
+rgb(252, 126, 174)
+rgb(126, 252, 140)
+rgb(126, 237, 252)
+#+end_src
+
+** Fonts
+
+jf-openhuninn?
