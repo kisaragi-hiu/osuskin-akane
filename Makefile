@@ -1,5 +1,5 @@
-retome.osk: retome.zip
-	mv retome.zip retome.osk
+akane.osk: akane.zip
+	mv akane.zip akane.osk
 
-retome.zip: .out
-	cd .out && 7z a ../retome.zip *
+akane.zip: .out
+	cd .out && 7z a ../akane.zip *

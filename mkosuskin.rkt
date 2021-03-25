@@ -25,7 +25,7 @@
 
 (define current-project-directory (make-parameter (build-path (current-directory))))
 (define current-revision (make-parameter "dev"))
-(define current-skinname (make-parameter "Retome"))
+(define current-skinname (make-parameter "Akane"))
 (define modules empty)
 (define cache-directory (build-path (current-project-directory) ".cache"))
 
