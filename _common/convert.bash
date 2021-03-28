@@ -24,7 +24,9 @@ bpy.context.scene.render.filepath = output_path
 PYTHON
 
 svg2png () {
-    inkscape -z "$1" -e "${1%.*}".png 2>/dev/null >/dev/null
+    # if [ "$1" -nt "$(basename "$1" .svg).png" ]; then
+    inkscape --export-type=png "$1"
+    # fi
 }; export -f svg2png
 
 mmpz2wav () {
