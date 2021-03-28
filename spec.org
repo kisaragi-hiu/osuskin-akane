@@ -3,9 +3,9 @@
 ** Colors (maybe temporary)
 
 #+begin_src css
-rgb(252, 126, 174)
-rgb(126, 252, 140)
-rgb(126, 237, 252)
+rgb(252, 126, 174) #FC7EAE
+rgb(126, 252, 140) #7EFC8C
+rgb(126, 237, 252) #7EEDFC
 #+end_src
 
 ** Fonts
