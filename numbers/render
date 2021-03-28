@@ -5,36 +5,32 @@ cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
 source _common/convert.bash
 
 for i in *.svg; do
-  find "$i" 2>/dev/null || break
-  svg2png "$i"
+	find "$i" 2>/dev/null || break
+	svg2png "$i"
 done
 
 for i in *.rendernormal.blend; do
-  find "$i" 2>/dev/null || break
-  render_blender "$i"
+	find "$i" 2>/dev/null || break
+	render_blender "$i"
 done
 
 for i in *.rendermarker.blend; do
-  find "$i" 2>/dev/null || break
-  render_blender_marker "$i"
+	find "$i" 2>/dev/null || break
+	render_blender_marker "$i"
 done
 
-list_rendered () {
-  printf "["
-  for i in *.png; do
-    printf \"
-    printf "%s" "$i" # SC2059. filenames could contain '%' which would be parsed
-    printf \"
-    printf ","
-  done
-  printf "\"numbers\","
-  printf "\"skin.ini\""
-  printf ']\n' # single quote so \n is parsed by printf not bash
+list_rendered() {
+	printf "["
+	for i in *.png; do
+		printf \"
+		printf "%s" "$i" # SC2059. filenames could contain '%' which would be parsed
+		printf \"
+		printf ","
+	done
+	printf "\"skin.ini\""
+	printf ']\n' # single quote so \n is parsed by printf not bash
 }
 
-sed s/◊hit-overlap◊/10/ template.skin.ini > numbers/jkgothic/skin.ini
-sed s/◊hit-overlap◊/128/ template.skin.ini > numbers/dot/skin.ini
+sed s/◊hit-overlap◊/10/ template.skin.ini >skin.ini
 
-cp numbers/jkgothic/* ./ # Use jkgothic numbers by default
-
-list_rendered > to-move
+list_rendered >to-move
