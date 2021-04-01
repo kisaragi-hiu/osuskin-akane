@@ -4,20 +4,9 @@ cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
 
 source _common/convert.bash
 
-for i in *.svg; do
-	find "$i" 2>/dev/null || break
-	svg2png "$i"
-done
-
-for i in *.rendernormal.blend; do
-	find "$i" 2>/dev/null || break
-	render_blender "$i"
-done
-
-for i in *.rendermarker.blend; do
-	find "$i" 2>/dev/null || break
-	render_blender_marker "$i"
-done
+parallel find '{}' '>/dev/null' '2>/dev/null' '&&' svg2png '{}' ::: *.svg
+parallel find '{}' '>/dev/null' '2>/dev/null' '&&' render_blender '{}' ::: *.rendernormal.blend
+parallel find '{}' '>/dev/null' '2>/dev/null' '&&' render_blender_marker '{}' ::: *.rendermarker.blend
 
 list_rendered() {
 	printf "["

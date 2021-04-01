@@ -23,26 +23,32 @@ for k, m in scn.timeline_markers.items():
 bpy.context.scene.render.filepath = output_path
 PYTHON
 
-svg2png () {
-    # if [ "$1" -nt "$(basename "$1" .svg).png" ]; then
-    inkscape --export-type=png "$1"
-    # fi
-}; export -f svg2png
+svg2png() {
+	# if [ "$1" -nt "$(basename "$1" .svg).png" ]; then
+	echo "svg2png: $1"
+	inkscape --export-type=png "$1"
+	# fi
+}
+export -f svg2png
 
-mmpz2wav () {
-    lmms --format wav --render "$1" >/dev/null 2>/dev/null
-}; export -f mmpz2wav
+mmpz2wav() {
+	echo "mmpz2wav: $1"
+	lmms --format wav --render "$1" >/dev/null 2>/dev/null
+}
+export -f mmpz2wav
 
-render_blender () {
-    src="$1"
-    shift 1
-    echo "render_blender: $src"...
-    blender -b "$src" -a "$@" 2>/dev/null >/dev/null
-}; export -f render_blender
+render_blender() {
+	src="$1"
+	shift 1
+	echo "render_blender: $src"...
+	blender -b "$src" -a "$@" 2>/dev/null >/dev/null
+}
+export -f render_blender
 
-render_blender_marker () {
-    src="$1"
-    shift 1
-    echo "render_blender_marker: $src"
-    blender -b "$src" "$@" --python <(echo "$render_marker") 2>/dev/null >/dev/null
-}; export -f render_blender_marker
+render_blender_marker() {
+	src="$1"
+	shift 1
+	echo "render_blender_marker: $src"
+	blender -b "$src" "$@" --python <(echo "$render_marker") 2>/dev/null >/dev/null
+}
+export -f render_blender_marker
