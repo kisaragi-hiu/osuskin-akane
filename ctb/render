@@ -6,7 +6,11 @@ source _common/convert.bash
 
 parallel find '{}' '>/dev/null' '2>/dev/null' '&&' svg2png '{}' ::: *.svg
 parallel find '{}' '>/dev/null' '2>/dev/null' '&&' render_blender '{}' ::: *.rendernormal.blend
-parallel find '{}' '>/dev/null' '2>/dev/null' '&&' render_blender_marker '{}' ::: *.rendermarker.blend
+
+for i in *.rendermarker.blend; do
+	find ./"$i" >/dev/null 2>/dev/null || break
+	render_blender_marker "$i"
+done
 
 # find ./* -name "*.svg" -exec bash -c 'svg2png "$0"' {} \;
 # find ./* -name "*.rendernormal.blend" -exec bash -c 'render_blender "$0"' {} \;
