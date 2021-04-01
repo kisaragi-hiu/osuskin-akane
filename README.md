@@ -8,6 +8,10 @@ Starting off the base of Retome because this is easier.
 
 Information below may be outdated.
 
+## TODO
+
+We’ll have to trim the history at some point. Certainly the tags, but maybe also everything that’s shared with Retome.
+
 ## Building
 
 ```bash
