@@ -26,7 +26,7 @@ PYTHON
 svg2png() {
 	# if [ "$1" -nt "$(basename "$1" .svg).png" ]; then
 	echo "svg2png: $1"
-	inkscape --export-type=png "$1"
+	inkscape --export-type=png "$1" >/dev/null 2>/dev/null
 	# fi
 }
 export -f svg2png

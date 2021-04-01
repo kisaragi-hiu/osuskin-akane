@@ -122,11 +122,10 @@
 (define (post-process dir)
   (define (files dir)
     (map path->complete-path (sequence->list (in-directory dir file-exists?))))
-
-  (map resize-@ (files dir))
+  (apply resize-@ (files dir))
   (map resize-resizeto (files dir))
   (map crop (files dir))
-  (map trim (files dir)))
+  (apply trim (files dir)))
 
 (define (package dir)
   (define outfile (build-path (current-project-directory)
@@ -142,7 +141,7 @@
 
 (define (optimize-png-in-dir dir)
   (displayln "optimizing png")
-  (run-command "pngquant" "--skip-if-larger" "--ext" ".png" "--force"
+  (run-command "parallel" "pngquant" "--skip-if-larger" "--ext" ".png" "--force" ":::"
                (~> (directory-list dir)
                    (filter #λ(path-has-extension? %1 ".png") _)
                    (map #λ(build-path dir %1) _)

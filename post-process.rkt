@@ -22,13 +22,22 @@
 
 (provide resize-@ resize-@2x resize-resizeto crop trim get-@-size)
 
-; orig, target : path?
-; ratio : number?
-(define (resize-vips orig target ratio)
-  (run-command "vips" "resize"
-               (path->string orig)
-               (path->string target)
-               (number->string (exact->inexact ratio))))
+; orig, target : (listof path?)
+; ratio : ((listof number?) . or/c . number?)
+(define/contract (resize-vips orig target ratio)
+  (-> (listof path?)
+      (listof path?)
+      (or/c (listof number?)
+            number?)
+      any/c)
+  (apply
+   run-command
+   `("parallel" "vips" "resize" "{1}" "{2}" "{3}"
+     ":::" ,@(map path->string orig)
+     ":::+" ,@(map path->string target)
+     ,@(if (list? ratio)
+           (cons ":::+" (map (compose1 number->string exact->inexact) ratio))
+           (list ":::" (number->string (exact->inexact ratio)))))))
 
 ; orig, target : path?
 ; size : string?
@@ -44,29 +53,50 @@
       (string-replace _ #rx"x.*" "")
       (string->number _)))
 
-(define (resize-@ path)
-  (define base-path (path-basename path))
-  (cond [(not (regexp-match #px".*@[[:digit:]]+x.*" (path->string base-path))) #f]
-        [(not (file-exists? path)) #f]
-        [(regexp-match #rx".*@2x.*" (path->string base-path)) (resize-@2x path)]
-        [else
-          (define target (path-replace path #px"@[[:digit:]]+x" "@2x"))
-          (define orig-size (get-@-size (path->string path))) ; parse the n in @_n_x
-          (resize-vips path target (/ 2 orig-size))
-          (resize-@2x target) ; target is always @2x. resize it to SD here
-          (delete-file path) ; we don't want left over @4x's
-          ;; return the target path
-          target]))
+(define (resize-@ . paths)
+  (define valid-paths
+    (filter
+     (lambda (path)
+       (and (regexp-match #px".*@[[:digit:]]+x.*" (path->string (path-basename path)))
+            (file-exists? path)))
+     paths))
+  (define twox-paths
+    (filter
+     (lambda (path)
+       (regexp-match #px".*@2x.*" (path->string (path-basename path))))
+     valid-paths))
+  (define other-paths
+    (set-subtract valid-paths twox-paths))
+  (define other-paths-in-2x
+    (map (lambda (orig) (path-replace orig #px"@[[:digit:]]+x" "@2x"))
+         other-paths))
+  (define other-paths-ratios
+    (map (lambda (orig) (/ 2 (get-@-size (path->string orig))))
+         other-paths))
+  ;; Resize all 2x all at once
+  (apply resize-@2x twox-paths)
+  ;; Resize 4x etc. to 2x
+  (resize-vips
+   other-paths
+   other-paths-in-2x
+   other-paths-ratios)
+  ;; Resize new 2x
+  (apply resize-@2x other-paths-in-2x)
+  ;; Delete the 4x etc. files
+  (map delete-file other-paths))
 
-(define (resize-@2x path)
-  (define base-path (path-basename path))
-  (cond [(not (regexp-match #rx".*@2x.*" (path->string base-path))) #f]
-        [(not (file-exists? path)) #f]
-        [else
-          (define target (path-replace path #rx"@2x" ""))
-          (resize-vips path target 0.5)
-          ;; return target path
-          target]))
+(define (resize-@2x . paths)
+  (define valid-paths
+    (filter
+     (lambda (path)
+       (and (regexp-match #rx".*@2x.*" (path->string (path-basename path)))
+            (file-exists? path)))
+     paths))
+  (resize-vips
+   valid-paths
+   (map (lambda (x) (path-replace x #rx"@2x" ""))
+        valid-paths)
+   0.5))
 
 (define (resize-resizeto path)
   (define base-path (path-basename path))
@@ -102,15 +132,19 @@
           ;; return target
           target]))
 
-(define (trim path)
-  (define base-path (path-basename path))
-  (cond [(not (regexp-match #px"totrim" (path->string base-path))) #f]
-        [(not (file-exists? path)) #f]
-        [else
-          (define target (path-replace path "totrim" ""))
-          (run-command "convert" "-trim" "+repage"
-                       (path->string path)
-                       (path->string target))
-          (delete-file path)
-          ;; return target
-          target]))
+(define (trim . paths)
+  (define valid-paths
+    (filter
+     (lambda (path)
+       (and (regexp-match #px"totrim" (path->string (path-basename path)))
+            (file-exists? path)))
+     paths))
+  (apply run-command
+         `("parallel" "convert" "-trim" "+repage"
+           ":::" ,@(map path->string valid-paths)
+           ":::+" ,@(map (lambda (path)
+                           (string-replace
+                            (path->string path)
+                            "totrim" ""))
+                         valid-paths)))
+  (map delete-file valid-paths))
